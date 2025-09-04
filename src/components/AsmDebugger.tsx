@@ -600,13 +600,13 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
         }}
       >
         <DebuggerLayout
-          debuggerPanel={/* renderDebugPanel() */}
-          onLayoutChange={(layout) => {
-            debuggerLog.debug("Layout changed:", layout);
-          }}
-        >
-          {renderEditor()}
-        </DebuggerLayout>
+  debuggerPanel={renderDebugPanel()}
+  onLayoutChange={(layout) => {
+    debuggerLog.debug("Layout changed:", layout);
+  }}
+>
+  {renderEditor()}
+</DebuggerLayout>
       </ErrorBoundary>
     </div>
   );
