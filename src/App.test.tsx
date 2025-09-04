@@ -1,0 +1,16 @@
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import App from './App';
+
+describe('App', () => {
+  it('renders AsmPlay title', () => {
+    render(<App />);
+    expect(screen.getByText('AsmPlay')).toBeInTheDocument();
+  });
+
+  it('renders Learn and Debug tabs', () => {
+    render(<App />);
+    expect(screen.getByText('Learn')).toBeInTheDocument();
+    expect(screen.getByText('Debug')).toBeInTheDocument();
+  });
+});

@@ -1,0 +1,631 @@
+{
+  "challenges": {
+    "beginner": [
+      {
+        "id": "sum_even",
+        "title": "Sum Even Numbers",
+        "prompt": "Sum only the even numbers in an array of 5 integers. Store result in R0.",
+        "starter": ".DATA\narray: .WORD 1, 2, 3, 4, 5\nlen: .WORD 5\n\n.TEXT\n; Your code here\n; Check each number if even (divisible by 2)\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[array]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 6 },
+          { "type": "memory", "addr": "array", "equals": 1 },
+          { "type": "memory", "addr": "array+4", "equals": 2 },
+          { "type": "memory", "addr": "array+8", "equals": 3 },
+          { "type": "memory", "addr": "len", "equals": 5 }
+        ],
+        "maxSteps": 2000,
+        "hints": ["Use AND with 1 to check if number is odd", "Only add to sum if the number is even", "Even numbers have their lowest bit as 0"]
+      },
+      {
+        "id": "min_value",
+        "title": "Find Minimum Value",
+        "prompt": "Find the minimum value in an array of 4 integers. Store result in R0.",
+        "starter": ".DATA\narray: .WORD 7, 3, 9, 2\nlen: .WORD 4\n\n.TEXT\n; Your code here\n; Start with first element, compare with others\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[array]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 2 },
+          { "type": "memory", "addr": "array", "equals": 7 },
+          { "type": "memory", "addr": "array+4", "equals": 3 },
+          { "type": "memory", "addr": "array+8", "equals": 9 },
+          { "type": "memory", "addr": "array+12", "equals": 2 }
+        ],
+        "maxSteps": 1500,
+        "hints": ["Initialize with first array element", "Compare each element with current minimum", "Update minimum when you find a smaller value"]
+      },
+      {
+        "id": "count_negatives",
+        "title": "Count Negative Numbers",
+        "prompt": "Count how many negative numbers are in an array of 6 integers. Store count in R0.",
+        "starter": ".DATA\narray: .WORD -1, 2, -3, 4, -5, 6\nlen: .WORD 6\n\n.TEXT\n; Your code here\n; Check sign bit or compare with 0\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[array]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 3 },
+          { "type": "memory", "addr": "array", "equals": -1 },
+          { "type": "memory", "addr": "array+4", "equals": 2 },
+          { "type": "memory", "addr": "array+8", "equals": -3 },
+          { "type": "memory", "addr": "len", "equals": 6 }
+        ],
+        "maxSteps": 2000,
+        "hints": ["Compare each number with 0", "Increment counter for negative numbers", "Use JL (jump if less) after comparison"]
+      },
+      {
+        "id": "copy_array",
+        "title": "Copy Array Elements",
+        "prompt": "Copy all elements from source array to destination array (4 elements).",
+        "starter": ".DATA\nsource: .WORD 10, 20, 30, 40\ndest: .WORD 0, 0, 0, 0\nlen: .WORD 4\n\n.TEXT\n; Your code here\n; Copy each element from source to dest\n\nHALT",
+        "watches": ["R0", "R1", "[source]", "[dest]"],
+        "asserts": [
+          { "type": "memory", "addr": "dest", "equals": 10 },
+          { "type": "memory", "addr": "dest+4", "equals": 20 },
+          { "type": "memory", "addr": "dest+8", "equals": 30 },
+          { "type": "memory", "addr": "dest+12", "equals": 40 },
+          { "type": "memory", "addr": "source", "equals": 10 },
+          { "type": "memory", "addr": "len", "equals": 4 }
+        ],
+        "maxSteps": 1500,
+        "hints": ["Use two pointers for source and destination", "Load from source, store to destination", "Increment both pointers by 4 each iteration"]
+      },
+      {
+        "id": "find_char",
+        "title": "Find Character in String",
+        "prompt": "Find the first occurrence of character 'l' in the string. Store index in R0, or -1 if not found.",
+        "starter": ".DATA\nstr: .STRING \"Hello\"\ntarget: .WORD 108\n\n.TEXT\n; Your code here\n; Search for ASCII 108 ('l') in string\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[str]", "[target]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 2 },
+          { "type": "memory", "addr": "str", "equals": 72 },
+          { "type": "memory", "addr": "str+1", "equals": 101 },
+          { "type": "memory", "addr": "str+2", "equals": 108 },
+          { "type": "memory", "addr": "target", "equals": 108 }
+        ],
+        "maxSteps": 1000,
+        "hints": ["Use LOADB to read single characters", "Compare each character with target", "Keep track of current index"]
+      },
+      {
+        "id": "set_memory",
+        "title": "Set Memory Pattern",
+        "prompt": "Fill an array of 5 words with the pattern: 1, 2, 3, 4, 5.",
+        "starter": ".DATA\narray: .WORD 0, 0, 0, 0, 0\nlen: .WORD 5\n\n.TEXT\n; Your code here\n; Fill array with sequential numbers 1-5\n\nHALT",
+        "watches": ["R0", "R1", "[array]", "[array+4]"],
+        "asserts": [
+          { "type": "memory", "addr": "array", "equals": 1 },
+          { "type": "memory", "addr": "array+4", "equals": 2 },
+          { "type": "memory", "addr": "array+8", "equals": 3 },
+          { "type": "memory", "addr": "array+12", "equals": 4 },
+          { "type": "memory", "addr": "array+16", "equals": 5 },
+          { "type": "memory", "addr": "len", "equals": 5 }
+        ],
+        "maxSteps": 1000,
+        "hints": ["Use a counter starting from 1", "Store counter value at each array position", "Increment both counter and array pointer"]
+      },
+      {
+        "id": "add_n_times",
+        "title": "Add Number N Times",
+        "prompt": "Add the number 3 to itself N times (N=4). Store result in R0. (3+3+3+3=12)",
+        "starter": ".DATA\nnum: .WORD 3\nn: .WORD 4\n\n.TEXT\n; Your code here\n; This is multiplication: num * n\n\nHALT",
+        "watches": ["R0", "R1", "[num]", "[n]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 12 },
+          { "type": "memory", "addr": "num", "equals": 3 },
+          { "type": "memory", "addr": "n", "equals": 4 }
+        ],
+        "maxSteps": 1000,
+        "hints": ["Initialize result to 0", "Add the number N times using a loop", "This is equivalent to multiplication"]
+      },
+      {
+        "id": "compare_mem",
+        "title": "Compare Memory Blocks",
+        "prompt": "Compare two arrays of 3 elements each. Store 1 in R0 if identical, 0 if different.",
+        "starter": ".DATA\narray1: .WORD 1, 2, 3\narray2: .WORD 1, 2, 3\nlen: .WORD 3\n\n.TEXT\n; Your code here\n; Compare each element pair\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[array1]", "[array2]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 1 },
+          { "type": "memory", "addr": "array1", "equals": 1 },
+          { "type": "memory", "addr": "array2", "equals": 1 },
+          { "type": "memory", "addr": "len", "equals": 3 }
+        ],
+        "maxSteps": 1500,
+        "hints": ["Compare elements at same positions", "If any pair differs, arrays are not identical", "Use two pointers to traverse both arrays"]
+      },
+      {
+        "id": "sum_array",
+        "title": "Sum an Array",
+        "prompt": "Sum N 32-bit integers starting at label 'data' with length N at 'len'. Put the result in R0.",
+        "starter": ".DATA\nlen: .WORD 5\ndata: .WORD 1, 2, 3, 4, 5\n\n.TEXT\n; Your code here\n; Load the length, iterate through array, sum values\n\nHALT",
+        "watches": ["R0", "[data]", "[data+4]", "[len]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 15 },
+          { "type": "memory", "addr": "data", "equals": 1 },
+          { "type": "memory", "addr": "data+4", "equals": 2 },
+          { "type": "memory", "addr": "data+8", "equals": 3 },
+          { "type": "memory", "addr": "len", "equals": 5 }
+        ],
+        "maxSteps": 2000,
+        "hints": ["Use an index register and a loop", "Remember each WORD is 4 bytes", "Load the length first to know when to stop"]
+      },
+      {
+        "id": "max_value",
+        "title": "Find Maximum Value",
+        "prompt": "Find the maximum value in an array of 4 integers. Store the result in R0.",
+        "starter": ".DATA\narray: .WORD 3, 7, 2, 9\n\n.TEXT\n; Your code here\n; Load first element as initial max, then compare with others\n\nHALT",
+        "watches": ["R0", "R1", "[array]", "[array+4]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 9 },
+          { "type": "memory", "addr": "array", "equals": 3 },
+          { "type": "memory", "addr": "array+4", "equals": 7 },
+          { "type": "memory", "addr": "array+8", "equals": 2 },
+          { "type": "memory", "addr": "array+12", "equals": 9 }
+        ],
+        "maxSteps": 1500,
+        "hints": ["Start with the first element as your current max", "Use CMP to compare values", "Update max only when you find a larger value"]
+      },
+      {
+        "id": "count_zeroes",
+        "title": "Count Zero Values",
+        "prompt": "Count how many zero values are in an array of 6 integers. Store the count in R0.",
+        "starter": ".DATA\narray: .WORD 1, 0, 3, 0, 0, 6\n\n.TEXT\n; Your code here\n; Iterate through array, increment counter for each zero\n\nHALT",
+        "watches": ["R0", "R1", "R2"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 3 },
+          { "type": "memory", "addr": "array", "equals": 1 },
+          { "type": "memory", "addr": "array+4", "equals": 0 },
+          { "type": "memory", "addr": "array+8", "equals": 3 },
+          { "type": "memory", "addr": "array+12", "equals": 0 },
+          { "type": "memory", "addr": "array+16", "equals": 0 },
+          { "type": "memory", "addr": "array+20", "equals": 6 }
+        ],
+        "maxSteps": 2000,
+        "hints": ["Initialize a counter to 0", "Compare each element with 0", "Increment counter when you find a match"]
+      },
+      {
+        "id": "reverse_string",
+        "title": "Reverse String",
+        "prompt": "Reverse a null-terminated string in place. The string is at label 'str'.",
+        "starter": ".DATA\nstr: .STRING \"ABCD\"\n\n.TEXT\n; Your code here\n; Find string length, then swap characters from ends\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[str]"],
+        "asserts": [
+          { "type": "memory", "addr": "str", "equals": 68 },
+          { "type": "memory", "addr": "str+1", "equals": 67 },
+          { "type": "memory", "addr": "str+2", "equals": 66 },
+          { "type": "memory", "addr": "str+3", "equals": 65 },
+          { "type": "memory", "addr": "str+4", "equals": 0 }
+        ],
+        "maxSteps": 3000,
+        "hints": ["First find the string length", "Use two pointers from start and end", "Swap characters and move pointers toward center"]
+      },
+      {
+        "id": "len_string",
+        "title": "String Length",
+        "prompt": "Calculate the length of a null-terminated string. Store the length in R0.",
+        "starter": ".DATA\nstr: .STRING \"Hello\"\n\n.TEXT\n; Your code here\n; Count characters until you reach null terminator\n\nHALT",
+        "watches": ["R0", "R1", "R2"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 5 },
+          { "type": "memory", "addr": "str", "equals": 72 },
+          { "type": "memory", "addr": "str+4", "equals": 111 },
+          { "type": "memory", "addr": "str+5", "equals": 0 }
+        ],
+        "maxSteps": 1000,
+        "hints": ["Use LOADB to read single bytes", "Compare each byte with 0", "Keep a counter of characters read"]
+      },
+      {
+        "id": "copy_memory",
+        "title": "Copy Memory Block",
+        "prompt": "Copy 4 words from 'source' to 'dest'. Both arrays are provided.",
+        "starter": ".DATA\nsource: .WORD 10, 20, 30, 40\ndest: .WORD 0, 0, 0, 0\n\n.TEXT\n; Your code here\n; Copy each word from source to destination\n\nHALT",
+        "watches": ["R0", "R1", "[source]", "[dest]"],
+        "asserts": [
+          { "type": "memory", "addr": "dest", "equals": 10 },
+          { "type": "memory", "addr": "dest+4", "equals": 20 },
+          { "type": "memory", "addr": "dest+8", "equals": 30 },
+          { "type": "memory", "addr": "dest+12", "equals": 40 },
+          { "type": "memory", "addr": "source", "equals": 10 },
+          { "type": "memory", "addr": "source+4", "equals": 20 }
+        ],
+        "maxSteps": 1500,
+        "hints": ["Use two pointers, one for source and one for dest", "Load from source, store to dest", "Increment both pointers by 4 each iteration"]
+      },
+      {
+        "id": "add_n",
+        "title": "Add N to Array",
+        "prompt": "Add the value N to each element in an array of 3 integers. N is stored at label 'n'.",
+        "starter": ".DATA\nn: .WORD 5\narray: .WORD 1, 2, 3\n\n.TEXT\n; Your code here\n; Load N, then add it to each array element\n\nHALT",
+        "watches": ["R0", "R1", "[n]", "[array]"],
+        "asserts": [
+          { "type": "memory", "addr": "array", "equals": 6 },
+          { "type": "memory", "addr": "array+4", "equals": 7 },
+          { "type": "memory", "addr": "array+8", "equals": 8 },
+          { "type": "memory", "addr": "n", "equals": 5 }
+        ],
+        "maxSteps": 1500,
+        "hints": ["Load N into a register first", "Iterate through the array", "Add N to each element and store back"]
+      },
+      {
+        "id": "compare_two",
+        "title": "Compare Two Numbers",
+        "prompt": "Compare two numbers A and B. Store 1 in R0 if A > B, 0 if A <= B.",
+        "starter": ".DATA\na: .WORD 15\nb: .WORD 10\n\n.TEXT\n; Your code here\n; Load both values, compare them, set result\n\nHALT",
+        "watches": ["R0", "[a]", "[b]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 1 },
+          { "type": "memory", "addr": "a", "equals": 15 },
+          { "type": "memory", "addr": "b", "equals": 10 }
+        ],
+        "maxSteps": 500,
+        "hints": ["Load both values into registers", "Use CMP to compare them", "Use conditional jump based on comparison result"]
+      }
+    ],
+    "intermediate": [
+      {
+        "id": "string_compress_rle",
+        "title": "Run Length Encoding",
+        "prompt": "Compress string using RLE. For input 'AAABBC', output should be 'A3B2C1'. Work with provided buffers.",
+        "starter": ".DATA\ninput: .STRING \"AAABBC\"\noutput: .SPACE 20\n\n.TEXT\n; Your code here\n; Count consecutive characters and encode as char+count\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[input]", "[output]"],
+        "asserts": [
+          { "type": "memory", "addr": "output", "equals": 65 },
+          { "type": "memory", "addr": "output+1", "equals": 51 },
+          { "type": "memory", "addr": "output+2", "equals": 66 },
+          { "type": "memory", "addr": "output+3", "equals": 50 },
+          { "type": "memory", "addr": "output+4", "equals": 67 },
+          { "type": "memory", "addr": "output+5", "equals": 49 }
+        ],
+        "maxSteps": 4000,
+        "hints": ["Count consecutive identical characters", "Store character followed by count digit (48 + count)", "Handle the last group of characters"]
+      },
+      {
+        "id": "rotate_right_k",
+        "title": "Rotate Array Right",
+        "prompt": "Rotate array elements K positions to the right. K=2 means [1,2,3,4] becomes [3,4,1,2].",
+        "starter": ".DATA\nk: .WORD 2\narray: .WORD 1, 2, 3, 4\nlen: .WORD 4\ntemp: .SPACE 16\n\n.TEXT\n; Your code here\n; Use temp space to help with rotation\n\nHALT",
+        "watches": ["R0", "R1", "[k]", "[array]", "[temp]"],
+        "asserts": [
+          { "type": "memory", "addr": "array", "equals": 3 },
+          { "type": "memory", "addr": "array+4", "equals": 4 },
+          { "type": "memory", "addr": "array+8", "equals": 1 },
+          { "type": "memory", "addr": "array+12", "equals": 2 },
+          { "type": "memory", "addr": "k", "equals": 2 }
+        ],
+        "maxSteps": 3000,
+        "hints": ["Copy elements to temp array in rotated positions", "New position = (old_position + k) % length", "Copy back from temp to original array"]
+      },
+      {
+        "id": "first_unique_byte",
+        "title": "First Unique Character",
+        "prompt": "Find first character that appears exactly once. Store ASCII value in R0, or 0 if none found.",
+        "starter": ".DATA\nstr: .STRING \"abccba\"\ncounts: .SPACE 256\n\n.TEXT\n; Your code here\n; Count each character, then find first with count=1\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[str]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 0 },
+          { "type": "memory", "addr": "str", "equals": 97 },
+          { "type": "memory", "addr": "str+1", "equals": 98 }
+        ],
+        "maxSteps": 4000,
+        "hints": ["First pass: count occurrences using counts array", "Use character ASCII as index into counts", "Second pass: find first character with count 1"]
+      },
+      {
+        "id": "balanced_brackets",
+        "title": "Balanced Brackets",
+        "prompt": "Check if brackets are balanced. Store 1 in R0 if balanced, 0 otherwise. Only '(' and ')' brackets.",
+        "starter": ".DATA\nstr: .STRING \"(())\"\n\n.TEXT\n; Your code here\n; Keep counter of open brackets\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[str]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 1 },
+          { "type": "memory", "addr": "str", "equals": 40 },
+          { "type": "memory", "addr": "str+1", "equals": 40 }
+        ],
+        "maxSteps": 2000,
+        "hints": ["Keep counter starting at 0", "Increment for '(', decrement for ')'", "If counter goes negative or isn't 0 at end, not balanced"]
+      },
+      {
+        "id": "matrix_diagonal_sum",
+        "title": "Matrix Diagonal Sum",
+        "prompt": "Sum the main diagonal of a 3x3 matrix stored row-wise. Store result in R0.",
+        "starter": ".DATA\nmatrix: .WORD 1, 2, 3, 4, 5, 6, 7, 8, 9\n\n.TEXT\n; Your code here\n; Access elements at positions 0, 4, 8\n\nHALT",
+        "watches": ["R0", "R1", "[matrix]", "[matrix+16]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 15 },
+          { "type": "memory", "addr": "matrix", "equals": 1 },
+          { "type": "memory", "addr": "matrix+16", "equals": 5 },
+          { "type": "memory", "addr": "matrix+32", "equals": 9 }
+        ],
+        "maxSteps": 1000,
+        "hints": ["Diagonal elements are at positions 0, 4, 8", "Each position is row*3*4 + col*4 bytes", "For diagonal: row = col"]
+      },
+      {
+        "id": "two_sum_exists",
+        "title": "Two Sum Exists",
+        "prompt": "Check if any two numbers in the array sum to the target value. Store 1 in R0 if found, 0 otherwise.",
+        "starter": ".DATA\ntarget: .WORD 10\narray: .WORD 2, 7, 11, 15\nlen: .WORD 4\n\n.TEXT\n; Your code here\n; Use nested loops to check all pairs\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[target]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 1 },
+          { "type": "memory", "addr": "target", "equals": 10 },
+          { "type": "memory", "addr": "array", "equals": 2 },
+          { "type": "memory", "addr": "array+4", "equals": 7 },
+          { "type": "memory", "addr": "len", "equals": 4 }
+        ],
+        "maxSteps": 5000,
+        "hints": ["Use nested loops to try all pairs", "For each pair, add the values and compare with target", "Return 1 immediately when found"]
+      },
+      {
+        "id": "string_compress_rle",
+        "title": "Run Length Encoding",
+        "prompt": "Compress string using RLE. For input 'AAB', output should be 'A2B1'. Work with the provided buffers.",
+        "starter": ".DATA\ninput: .STRING \"AAABBC\"\noutput: .SPACE 20\n\n.TEXT\n; Your code here\n; Count consecutive characters and encode as char+count\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[input]", "[output]"],
+        "asserts": [
+          { "type": "memory", "addr": "output", "equals": 65 },
+          { "type": "memory", "addr": "output+1", "equals": 51 },
+          { "type": "memory", "addr": "output+2", "equals": 66 },
+          { "type": "memory", "addr": "output+3", "equals": 50 },
+          { "type": "memory", "addr": "output+4", "equals": 67 },
+          { "type": "memory", "addr": "output+5", "equals": 49 }
+        ],
+        "maxSteps": 4000,
+        "hints": ["Count consecutive identical characters", "Store character followed by count digit", "Handle the last group of characters"]
+      },
+      {
+        "id": "rotate_right_k",
+        "title": "Rotate Array Right",
+        "prompt": "Rotate array elements K positions to the right. K=2 means [1,2,3,4] becomes [3,4,1,2].",
+        "starter": ".DATA\nk: .WORD 2\narray: .WORD 1, 2, 3, 4\nlen: .WORD 4\ntemp: .SPACE 16\n\n.TEXT\n; Your code here\n; Use temp space to help with rotation\n\nHALT",
+        "watches": ["R0", "R1", "[k]", "[array]"],
+        "asserts": [
+          { "type": "memory", "addr": "array", "equals": 3 },
+          { "type": "memory", "addr": "array+4", "equals": 4 },
+          { "type": "memory", "addr": "array+8", "equals": 1 },
+          { "type": "memory", "addr": "array+12", "equals": 2 },
+          { "type": "memory", "addr": "k", "equals": 2 },
+          { "type": "memory", "addr": "len", "equals": 4 }
+        ],
+        "maxSteps": 3000,
+        "hints": ["Copy elements to temp array in rotated positions", "Calculate new position as (i + k) % length", "Copy back from temp to original array"]
+      },
+      {
+        "id": "first_unique_byte",
+        "title": "First Unique Character",
+        "prompt": "Find the first character that appears exactly once in the string. Store its ASCII value in R0, or 0 if none.",
+        "starter": ".DATA\nstr: .STRING \"abccba\"\ncounts: .SPACE 256\n\n.TEXT\n; Your code here\n; Count each character, then find first with count=1\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[str]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 0 },
+          { "type": "memory", "addr": "str", "equals": 97 },
+          { "type": "memory", "addr": "str+1", "equals": 98 }
+        ],
+        "maxSteps": 4000,
+        "hints": ["First pass: count occurrences of each character", "Use character ASCII value as index into counts array", "Second pass: find first character with count 1"]
+      },
+      {
+        "id": "balanced_brackets",
+        "title": "Balanced Brackets",
+        "prompt": "Check if brackets are balanced in the string. Store 1 in R0 if balanced, 0 otherwise. Only '(' and ')' brackets.",
+        "starter": ".DATA\nstr: .STRING \"(())\"\n\n.TEXT\n; Your code here\n; Keep counter of open brackets, ensure it never goes negative\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[str]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 1 },
+          { "type": "memory", "addr": "str", "equals": 40 },
+          { "type": "memory", "addr": "str+1", "equals": 40 }
+        ],
+        "maxSteps": 2000,
+        "hints": ["Keep a counter starting at 0", "Increment for '(', decrement for ')'", "If counter goes negative or isn't 0 at end, not balanced"]
+      },
+      {
+        "id": "matrix_diagonal_sum",
+        "title": "Matrix Diagonal Sum",
+        "prompt": "Sum the main diagonal of a 3x3 matrix stored row-wise. Store result in R0.",
+        "starter": ".DATA\nmatrix: .WORD 1, 2, 3, 4, 5, 6, 7, 8, 9\n\n.TEXT\n; Your code here\n; Access elements at positions 0, 4, 8 (matrix[i][i])\n\nHALT",
+        "watches": ["R0", "R1", "[matrix]", "[matrix+16]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 15 },
+          { "type": "memory", "addr": "matrix", "equals": 1 },
+          { "type": "memory", "addr": "matrix+16", "equals": 5 },
+          { "type": "memory", "addr": "matrix+32", "equals": 9 }
+        ],
+        "maxSteps": 1000,
+        "hints": ["Diagonal elements are at positions 0, 4, 8", "Each position is (row * 3 + col) * 4 bytes", "For diagonal: row = col, so position = row * 4 * 4"]
+      }
+    ],
+    "advanced": [
+      {
+        "id": "factorial_iter",
+        "title": "Factorial (Iterative)",
+        "prompt": "Calculate N! iteratively. N is at label 'n', store result in R0. Use proper error handling for N=0.",
+        "starter": ".DATA\nn: .WORD 5\n\n.TEXT\n; Your code here\n; Calculate 5! = 5*4*3*2*1 = 120\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[n]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 120 },
+          { "type": "memory", "addr": "n", "equals": 5 }
+        ],
+        "maxSteps": 2000,
+        "hints": ["Initialize result to 1", "Multiply by each number from N down to 1", "Handle special case of 0! = 1"]
+      },
+      {
+        "id": "fibonacci_iter",
+        "title": "Fibonacci (Iterative)",
+        "prompt": "Calculate Nth Fibonacci number iteratively. N at 'n', result in R0. F(0)=0, F(1)=1.",
+        "starter": ".DATA\nn: .WORD 7\n\n.TEXT\n; Your code here\n; F(7) = 13: 0,1,1,2,3,5,8,13\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[n]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 13 },
+          { "type": "memory", "addr": "n", "equals": 7 }
+        ],
+        "maxSteps": 2000,
+        "hints": ["Handle base cases F(0)=0, F(1)=1", "Keep track of previous two values", "Iterate from 2 to N"]
+      },
+      {
+        "id": "bubble_sort",
+        "title": "Bubble Sort Algorithm",
+        "prompt": "Sort array of 5 integers using bubble sort. Sort in ascending order.",
+        "starter": ".DATA\narray: .WORD 64, 34, 25, 12, 22\nlen: .WORD 5\n\n.TEXT\n; Your code here\n; Implement bubble sort with nested loops\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[array]", "[array+4]"],
+        "asserts": [
+          { "type": "memory", "addr": "array", "equals": 12 },
+          { "type": "memory", "addr": "array+4", "equals": 22 },
+          { "type": "memory", "addr": "array+8", "equals": 25 },
+          { "type": "memory", "addr": "array+12", "equals": 34 },
+          { "type": "memory", "addr": "array+16", "equals": 64 }
+        ],
+        "maxSteps": 8000,
+        "hints": ["Use nested loops: outer for passes, inner for comparisons", "Compare adjacent elements and swap if needed", "Optimize by reducing inner loop range each pass"]
+      },
+      {
+        "id": "memsearch",
+        "title": "Memory Pattern Search",
+        "prompt": "Find first occurrence of pattern [1,2] in data array. Store index in R0, or -1 if not found.",
+        "starter": ".DATA\ndata: .WORD 5, 1, 2, 3, 1, 2, 7\nlen: .WORD 7\npattern: .WORD 1, 2\npatlen: .WORD 2\n\n.TEXT\n; Your code here\n; Search for consecutive pattern [1,2]\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[data]", "[pattern]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 1 },
+          { "type": "memory", "addr": "data+4", "equals": 1 },
+          { "type": "memory", "addr": "data+8", "equals": 2 },
+          { "type": "memory", "addr": "pattern", "equals": 1 }
+        ],
+        "maxSteps": 4000,
+        "hints": ["For each position in data, check if pattern matches", "Compare pattern elements one by one", "Return starting index when full pattern matches"]
+      },
+      {
+        "id": "selection_sort",
+        "title": "Selection Sort Algorithm",
+        "prompt": "Sort array using selection sort. Find minimum in unsorted portion, swap with first unsorted element.",
+        "starter": ".DATA\narray: .WORD 29, 10, 14, 37, 13\nlen: .WORD 5\n\n.TEXT\n; Your code here\n; Find min in remaining array, swap to front\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[array]"],
+        "asserts": [
+          { "type": "memory", "addr": "array", "equals": 10 },
+          { "type": "memory", "addr": "array+4", "equals": 13 },
+          { "type": "memory", "addr": "array+8", "equals": 14 },
+          { "type": "memory", "addr": "array+12", "equals": 29 },
+          { "type": "memory", "addr": "array+16", "equals": 37 }
+        ],
+        "maxSteps": 6000,
+        "hints": ["For each position, find minimum in remaining array", "Swap minimum with current position", "Repeat for each position except last"]
+      },
+      {
+        "id": "string_to_upper",
+        "title": "Convert String to Uppercase",
+        "prompt": "Convert lowercase letters in string to uppercase. Leave other characters unchanged.",
+        "starter": ".DATA\nstr: .STRING \"Hello World!\"\n\n.TEXT\n; Your code here\n; Convert 'a'-'z' to 'A'-'Z' (subtract 32)\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[str]"],
+        "asserts": [
+          { "type": "memory", "addr": "str", "equals": 72 },
+          { "type": "memory", "addr": "str+1", "equals": 69 },
+          { "type": "memory", "addr": "str+2", "equals": 76 },
+          { "type": "memory", "addr": "str+6", "equals": 87 },
+          { "type": "memory", "addr": "str+12", "equals": 33 }
+        ],
+        "maxSteps": 3000,
+        "hints": ["Check if character is lowercase (97-122)", "Subtract 32 to convert to uppercase", "Leave non-lowercase characters unchanged"]
+      },
+      {
+        "id": "reverse_words",
+        "title": "Reverse Words in String",
+        "prompt": "Reverse the order of words in a string. Words are separated by single spaces.",
+        "starter": ".DATA\nstr: .STRING \"Hello World\"\ntemp: .SPACE 50\n\n.TEXT\n; Your code here\n; Reverse word order: \"Hello World\" -> \"World Hello\"\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[str]", "[temp]"],
+        "asserts": [
+          { "type": "memory", "addr": "str", "equals": 87 },
+          { "type": "memory", "addr": "str+1", "equals": 111 },
+          { "type": "memory", "addr": "str+2", "equals": 114 },
+          { "type": "memory", "addr": "str+3", "equals": 108 },
+          { "type": "memory", "addr": "str+4", "equals": 100 },
+          { "type": "memory", "addr": "str+5", "equals": 32 },
+          { "type": "memory", "addr": "str+6", "equals": 72 }
+        ],
+        "maxSteps": 4000,
+        "hints": ["Find word boundaries by looking for spaces", "Copy words to temp buffer in reverse order", "Copy result back to original string"]
+      },
+      {
+        "id": "strip_spaces",
+        "title": "Strip Leading/Trailing Spaces",
+        "prompt": "Remove spaces from beginning and end of string. Modify string in place.",
+        "starter": ".DATA\nstr: .STRING \"  Hello  \"\n\n.TEXT\n; Your code here\n; Remove leading and trailing spaces\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[str]"],
+        "asserts": [
+          { "type": "memory", "addr": "str", "equals": 72 },
+          { "type": "memory", "addr": "str+1", "equals": 101 },
+          { "type": "memory", "addr": "str+2", "equals": 108 },
+          { "type": "memory", "addr": "str+5", "equals": 0 }
+        ],
+        "maxSteps": 4000,
+        "hints": ["Find first non-space character", "Find last non-space character", "Copy the trimmed portion to beginning of string"]
+      },
+      {
+        "id": "reverse_words",
+        "title": "Reverse Words in String",
+        "prompt": "Reverse the order of words in a string. 'Hello World' becomes 'World Hello'.",
+        "starter": ".DATA\nstr: .STRING \"Hello World\"\ntemp: .SPACE 20\n\n.TEXT\n; Your code here\n; Reverse word order, keep words intact\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[str]", "[temp]"],
+        "asserts": [
+          { "type": "memory", "addr": "str", "equals": 87 },
+          { "type": "memory", "addr": "str+1", "equals": 111 },
+          { "type": "memory", "addr": "str+2", "equals": 114 },
+          { "type": "memory", "addr": "str+6", "equals": 72 },
+          { "type": "memory", "addr": "str+11", "equals": 0 }
+        ],
+        "maxSteps": 5000,
+        "hints": ["Find word boundaries (spaces)", "Copy words in reverse order to temp buffer", "Copy result back to original string"]
+      },
+      {
+        "id": "factorial_iterative",
+        "title": "Factorial (Iterative)",
+        "prompt": "Calculate N! iteratively using the stack for intermediate values. N is at label 'n', store result in R0.",
+        "starter": ".DATA\nn: .WORD 5\n\n.TEXT\n; Your code here\n; Calculate 5! = 5*4*3*2*1 = 120\n; Use stack to manage the calculation\n\nHALT",
+        "watches": ["R0", "R1", "SP", "[n]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 120 },
+          { "type": "memory", "addr": "n", "equals": 5 }
+        ],
+        "maxSteps": 3000,
+        "hints": ["Initialize result to 1", "Multiply by each number from N down to 1", "Use stack to save intermediate results if needed"]
+      },
+      {
+        "id": "fibonacci_iterative",
+        "title": "Fibonacci (Iterative)",
+        "prompt": "Calculate the Nth Fibonacci number iteratively. N is at label 'n', store result in R0. F(0)=0, F(1)=1.",
+        "starter": ".DATA\nn: .WORD 7\n\n.TEXT\n; Your code here\n; Calculate F(7) = 13\n; F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2)\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[n]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 13 },
+          { "type": "memory", "addr": "n", "equals": 7 }
+        ],
+        "maxSteps": 2500,
+        "hints": ["Handle base cases F(0)=0, F(1)=1", "Keep track of previous two values", "Iterate from 2 to N, updating the sequence"]
+      },
+      {
+        "id": "bubble_sort",
+        "title": "Bubble Sort",
+        "prompt": "Sort an array of 5 integers using bubble sort algorithm. Sort in ascending order.",
+        "starter": ".DATA\narray: .WORD 64, 34, 25, 12, 22\nlen: .WORD 5\n\n.TEXT\n; Your code here\n; Implement bubble sort with nested loops\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[array]", "[array+4]"],
+        "asserts": [
+          { "type": "memory", "addr": "array", "equals": 12 },
+          { "type": "memory", "addr": "array+4", "equals": 22 },
+          { "type": "memory", "addr": "array+8", "equals": 25 },
+          { "type": "memory", "addr": "array+12", "equals": 34 },
+          { "type": "memory", "addr": "array+16", "equals": 64 },
+          { "type": "memory", "addr": "len", "equals": 5 }
+        ],
+        "maxSteps": 8000,
+        "hints": ["Use nested loops: outer for passes, inner for comparisons", "Compare adjacent elements and swap if needed", "After each pass, largest element bubbles to the end"]
+      },
+      {
+        "id": "memsearch",
+        "title": "Memory Pattern Search",
+        "prompt": "Find the first occurrence of pattern [1,2] in the data array. Store the index in R0, or -1 if not found.",
+        "starter": ".DATA\ndata: .WORD 5, 1, 2, 3, 1, 2, 7\nlen: .WORD 7\npattern: .WORD 1, 2\npatlen: .WORD 2\n\n.TEXT\n; Your code here\n; Search for consecutive pattern [1,2] in data\n\nHALT",
+        "watches": ["R0", "R1", "R2", "[data]", "[pattern]"],
+        "asserts": [
+          { "type": "register", "reg": "R0", "equals": 1 },
+          { "type": "memory", "addr": "data", "equals": 5 },
+          { "type": "memory", "addr": "data+4", "equals": 1 },
+          { "type": "memory", "addr": "data+8", "equals": 2 },
+          { "type": "memory", "addr": "pattern", "equals": 1 },
+          { "type": "memory", "addr": "pattern+4", "equals": 2 }
+        ],
+        "maxSteps": 5000,
+        "hints": ["For each position in data, check if pattern matches", "Compare pattern elements one by one", "Return the starting index when full pattern matches"]
+      }
+    ]
+  }
+}

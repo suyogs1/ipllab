@@ -1,0 +1,778 @@
+{
+  "opcodes": [
+    {
+      "id": "mov",
+      "name": "MOV",
+      "category": "data",
+      "description": "Move data from source to destination",
+      "syntax": "MOV dest, src",
+      "flags": "None",
+      "examples": [
+        {
+          "code": "MOV R0, #42",
+          "description": "Load immediate value 42 into register R0"
+        },
+        {
+          "code": "MOV R1, R0",
+          "description": "Copy value from R0 to R1"
+        }
+      ],
+      "notes": "The MOV instruction copies data without affecting the source. Use # prefix for immediate values."
+    },
+    {
+      "id": "load",
+      "name": "LOAD",
+      "category": "memory",
+      "description": "Load 32-bit word from memory to register",
+      "syntax": "LOAD reg, [address]",
+      "flags": "None",
+      "examples": [
+        {
+          "code": "LOAD R0, [1000]",
+          "description": "Load word from memory address 1000 into R0"
+        },
+        {
+          "code": "LOAD R1, [R2]",
+          "description": "Load word from address stored in R2"
+        },
+        {
+          "code": "LOAD R3, [array+4]",
+          "description": "Load second element of array (offset by 4 bytes)"
+        }
+      ],
+      "notes": "LOAD reads 4 bytes (32-bit word) from memory. Use LOADB for single bytes."
+    },
+    {
+      "id": "loadb",
+      "name": "LOADB",
+      "category": "memory",
+      "description": "Load single byte from memory to register",
+      "syntax": "LOADB reg, [address]",
+      "flags": "None",
+      "examples": [
+        {
+          "code": "LOADB R0, [str]",
+          "description": "Load first character of string"
+        },
+        {
+          "code": "LOADB R1, [R0+5]",
+          "description": "Load byte at offset 5 from address in R0"
+        }
+      ],
+      "notes": "LOADB reads only 1 byte. Useful for character/string operations."
+    },
+    {
+      "id": "store",
+      "name": "STORE",
+      "category": "memory",
+      "description": "Store 32-bit word from register to memory",
+      "syntax": "STORE [address], reg",
+      "flags": "None",
+      "examples": [
+        {
+          "code": "STORE [1000], R0",
+          "description": "Store R0 value to memory address 1000"
+        },
+        {
+          "code": "STORE [R1], R2",
+          "description": "Store R2 to address pointed by R1"
+        }
+      ],
+      "notes": "STORE writes 4 bytes to memory. Use STOREB for single bytes."
+    },
+    {
+      "id": "storeb",
+      "name": "STOREB",
+      "category": "memory",
+      "description": "Store single byte from register to memory",
+      "syntax": "STOREB [address], reg",
+      "flags": "None",
+      "examples": [
+        {
+          "code": "STOREB [str], R0",
+          "description": "Store byte value to string location"
+        }
+      ],
+      "notes": "STOREB writes only the lowest byte of the register."
+    },
+    {
+      "id": "add",
+      "name": "ADD",
+      "category": "arithmetic",
+      "description": "Add source to destination",
+      "syntax": "ADD dest, src",
+      "flags": "ZF, NF, CF, OF",
+      "examples": [
+        {
+          "code": "ADD R0, R1",
+          "description": "Add R1 to R0, store result in R0"
+        },
+        {
+          "code": "ADD R2, #10",
+          "description": "Add immediate value 10 to R2"
+        }
+      ],
+      "notes": "Sets flags based on result. Carry flag indicates unsigned overflow."
+    },
+    {
+      "id": "sub",
+      "name": "SUB",
+      "category": "arithmetic",
+      "description": "Subtract source from destination",
+      "syntax": "SUB dest, src",
+      "flags": "ZF, NF, CF, OF",
+      "examples": [
+        {
+          "code": "SUB R0, R1",
+          "description": "Subtract R1 from R0"
+        },
+        {
+          "code": "SUB R2, #5",
+          "description": "Subtract 5 from R2"
+        }
+      ],
+      "notes": "Result = dest - src. Carry flag set if unsigned underflow occurs."
+    },
+    {
+      "id": "mul",
+      "name": "MUL",
+      "category": "arithmetic",
+      "description": "Multiply destination by source",
+      "syntax": "MUL dest, src",
+      "flags": "ZF, NF",
+      "examples": [
+        {
+          "code": "MUL R0, R1",
+          "description": "Multiply R0 by R1"
+        },
+        {
+          "code": "MUL R2, #3",
+          "description": "Multiply R2 by 3"
+        }
+      ],
+      "notes": "Result stored in destination register. No overflow detection."
+    },
+    {
+      "id": "div",
+      "name": "DIV",
+      "category": "arithmetic",
+      "description": "Divide destination by source",
+      "syntax": "DIV dest, src",
+      "flags": "ZF, NF",
+      "examples": [
+        {
+          "code": "DIV R0, R1",
+          "description": "Divide R0 by R1"
+        },
+        {
+          "code": "DIV R2, #2",
+          "description": "Divide R2 by 2"
+        }
+      ],
+      "notes": "Integer division. Division by zero causes runtime error."
+    },
+    {
+      "id": "inc",
+      "name": "INC",
+      "category": "arithmetic",
+      "description": "Increment register by 1",
+      "syntax": "INC reg",
+      "flags": "ZF, NF, OF",
+      "examples": [
+        {
+          "code": "INC R0",
+          "description": "Add 1 to R0"
+        }
+      ],
+      "notes": "Equivalent to ADD reg, #1 but more efficient."
+    },
+    {
+      "id": "dec",
+      "name": "DEC",
+      "category": "arithmetic",
+      "description": "Decrement register by 1",
+      "syntax": "DEC reg",
+      "flags": "ZF, NF, OF",
+      "examples": [
+        {
+          "code": "DEC R1",
+          "description": "Subtract 1 from R1"
+        }
+      ],
+      "notes": "Equivalent to SUB reg, #1. Commonly used in loops."
+    },
+    {
+      "id": "cmp",
+      "name": "CMP",
+      "category": "logic",
+      "description": "Compare two operands by subtraction",
+      "syntax": "CMP op1, op2",
+      "flags": "ZF, NF, CF, OF",
+      "examples": [
+        {
+          "code": "CMP R0, R1",
+          "description": "Compare R0 with R1"
+        },
+        {
+          "code": "CMP R2, #0",
+          "description": "Check if R2 is zero"
+        }
+      ],
+      "notes": "Performs op1 - op2 but doesn't store result, only sets flags."
+    },
+    {
+      "id": "and",
+      "name": "AND",
+      "category": "logic",
+      "description": "Bitwise AND operation",
+      "syntax": "AND dest, src",
+      "flags": "ZF, NF",
+      "examples": [
+        {
+          "code": "AND R0, #1",
+          "description": "Check if R0 is odd (test lowest bit)"
+        },
+        {
+          "code": "AND R1, #0xFF",
+          "description": "Keep only lowest 8 bits of R1"
+        }
+      ],
+      "notes": "Useful for bit masking and testing specific bits."
+    },
+    {
+      "id": "or",
+      "name": "OR",
+      "category": "logic",
+      "description": "Bitwise OR operation",
+      "syntax": "OR dest, src",
+      "flags": "ZF, NF",
+      "examples": [
+        {
+          "code": "OR R0, #1",
+          "description": "Set lowest bit of R0"
+        },
+        {
+          "code": "OR R1, R2",
+          "description": "Combine bits from R1 and R2"
+        }
+      ],
+      "notes": "Used to set specific bits or combine bit patterns."
+    },
+    {
+      "id": "xor",
+      "name": "XOR",
+      "category": "logic",
+      "description": "Bitwise XOR (exclusive OR) operation",
+      "syntax": "XOR dest, src",
+      "flags": "ZF, NF",
+      "examples": [
+        {
+          "code": "XOR R0, R0",
+          "description": "Clear R0 to zero (common idiom)"
+        },
+        {
+          "code": "XOR R1, #1",
+          "description": "Toggle lowest bit of R1"
+        }
+      ],
+      "notes": "XOR with itself clears register. XOR with 1 toggles bits."
+    },
+    {
+      "id": "shl",
+      "name": "SHL",
+      "category": "logic",
+      "description": "Shift left (multiply by 2^n)",
+      "syntax": "SHL reg, count",
+      "flags": "ZF, NF, CF",
+      "examples": [
+        {
+          "code": "SHL R0, #1",
+          "description": "Multiply R0 by 2"
+        },
+        {
+          "code": "SHL R1, #3",
+          "description": "Multiply R1 by 8"
+        }
+      ],
+      "notes": "Each left shift multiplies by 2. Carry flag gets last shifted bit."
+    },
+    {
+      "id": "shr",
+      "name": "SHR",
+      "category": "logic",
+      "description": "Shift right (divide by 2^n)",
+      "syntax": "SHR reg, count",
+      "flags": "ZF, NF, CF",
+      "examples": [
+        {
+          "code": "SHR R0, #1",
+          "description": "Divide R0 by 2"
+        },
+        {
+          "code": "SHR R1, #2",
+          "description": "Divide R1 by 4"
+        }
+      ],
+      "notes": "Logical right shift. Fills with zeros from left."
+    },
+    {
+      "id": "jmp",
+      "name": "JMP",
+      "category": "control",
+      "description": "Unconditional jump to label",
+      "syntax": "JMP label",
+      "flags": "None",
+      "examples": [
+        {
+          "code": "JMP loop_start",
+          "description": "Jump to loop_start label"
+        },
+        {
+          "code": "JMP end",
+          "description": "Skip to end of program"
+        }
+      ],
+      "notes": "Always jumps regardless of flags. Use for loops and skipping code."
+    },
+    {
+      "id": "jz",
+      "name": "JZ / JE",
+      "category": "control",
+      "description": "Jump if Zero Flag is set (equal)",
+      "syntax": "JZ label",
+      "flags": "Tests ZF",
+      "examples": [
+        {
+          "code": "CMP R0, #0\nJZ is_zero",
+          "description": "Jump if R0 equals 0"
+        },
+        {
+          "code": "SUB R1, #1\nJZ done",
+          "description": "Jump if R1 became 0"
+        }
+      ],
+      "notes": "JE (Jump if Equal) is same as JZ. Tests result of previous operation."
+    },
+    {
+      "id": "jnz",
+      "name": "JNZ / JNE",
+      "category": "control",
+      "description": "Jump if Zero Flag is clear (not equal)",
+      "syntax": "JNZ label",
+      "flags": "Tests ZF",
+      "examples": [
+        {
+          "code": "DEC R0\nJNZ loop",
+          "description": "Continue loop while R0 is not zero"
+        },
+        {
+          "code": "CMP R1, R2\nJNE different",
+          "description": "Jump if R1 and R2 are different"
+        }
+      ],
+      "notes": "JNE (Jump if Not Equal) is same as JNZ. Common in loop conditions."
+    },
+    {
+      "id": "jl",
+      "name": "JL / JB",
+      "category": "control",
+      "description": "Jump if less than (signed) / below (unsigned)",
+      "syntax": "JL label",
+      "flags": "Tests NF, OF, CF",
+      "examples": [
+        {
+          "code": "CMP R0, #10\nJL smaller",
+          "description": "Jump if R0 < 10"
+        }
+      ],
+      "notes": "JL for signed comparison, JB for unsigned. Check flags after CMP."
+    },
+    {
+      "id": "jg",
+      "name": "JG / JA",
+      "category": "control",
+      "description": "Jump if greater than (signed) / above (unsigned)",
+      "syntax": "JG label",
+      "flags": "Tests ZF, NF, OF, CF",
+      "examples": [
+        {
+          "code": "CMP R0, #5\nJG bigger",
+          "description": "Jump if R0 > 5"
+        }
+      ],
+      "notes": "JG for signed comparison, JA for unsigned."
+    },
+    {
+      "id": "jle",
+      "name": "JLE / JBE",
+      "category": "control",
+      "description": "Jump if less than or equal / below or equal",
+      "syntax": "JLE label",
+      "flags": "Tests flags",
+      "examples": [
+        {
+          "code": "CMP R0, #10\nJLE not_greater",
+          "description": "Jump if R0 <= 10"
+        }
+      ],
+      "notes": "Combines less than and equal conditions."
+    },
+    {
+      "id": "jge",
+      "name": "JGE / JAE",
+      "category": "control",
+      "description": "Jump if greater than or equal / above or equal",
+      "syntax": "JGE label",
+      "flags": "Tests flags",
+      "examples": [
+        {
+          "code": "CMP R0, #0\nJGE positive",
+          "description": "Jump if R0 >= 0"
+        }
+      ],
+      "notes": "Combines greater than and equal conditions."
+    },
+    {
+      "id": "push",
+      "name": "PUSH",
+      "category": "stack",
+      "description": "Push value onto stack",
+      "syntax": "PUSH src",
+      "flags": "None",
+      "examples": [
+        {
+          "code": "PUSH R0",
+          "description": "Push R0 value onto stack"
+        },
+        {
+          "code": "PUSH #42",
+          "description": "Push immediate value 42"
+        }
+      ],
+      "notes": "Decrements SP then stores value. Stack grows downward."
+    },
+    {
+      "id": "pop",
+      "name": "POP",
+      "category": "stack",
+      "description": "Pop value from stack",
+      "syntax": "POP dest",
+      "flags": "None",
+      "examples": [
+        {
+          "code": "POP R1",
+          "description": "Pop top stack value into R1"
+        }
+      ],
+      "notes": "Loads value then increments SP. LIFO (Last In, First Out)."
+    },
+    {
+      "id": "call",
+      "name": "CALL",
+      "category": "control",
+      "description": "Call subroutine (push return address and jump)",
+      "syntax": "CALL label",
+      "flags": "None",
+      "examples": [
+        {
+          "code": "CALL my_function",
+          "description": "Call function at my_function label"
+        }
+      ],
+      "notes": "Pushes return address (next instruction) then jumps to label."
+    },
+    {
+      "id": "ret",
+      "name": "RET",
+      "category": "control",
+      "description": "Return from subroutine (pop return address and jump)",
+      "syntax": "RET",
+      "flags": "None",
+      "examples": [
+        {
+          "code": "RET",
+          "description": "Return to caller"
+        }
+      ],
+      "notes": "Pops return address from stack and jumps to it. Must match CALL."
+    },
+    {
+      "id": "sys",
+      "name": "SYS",
+      "category": "system",
+      "description": "System call for I/O and program control",
+      "syntax": "SYS #number",
+      "flags": "None",
+      "examples": [
+        {
+          "code": "MOV R0, #42\nSYS #1",
+          "description": "Print integer in R0"
+        },
+        {
+          "code": "MOV R1, msg\nSYS #2",
+          "description": "Print string at address in R1"
+        },
+        {
+          "code": "MOV R0, #0\nSYS #3",
+          "description": "Exit program with code in R0"
+        }
+      ],
+      "notes": "SYS #1: print int (R0), SYS #2: print string (R1), SYS #3: exit (R0)"
+    },
+    {
+      "id": "halt",
+      "name": "HALT",
+      "category": "control",
+      "description": "Stop program execution",
+      "syntax": "HALT",
+      "flags": "None",
+      "examples": [
+        {
+          "code": "HALT",
+          "description": "End program execution"
+        }
+      ],
+      "notes": "Stops the CPU. Every program should end with HALT."
+    }
+  ],
+  "addressing": [
+    {
+      "id": "immediate",
+      "name": "Immediate Addressing",
+      "syntax": "#value",
+      "description": "The operand is a constant value embedded in the instruction",
+      "examples": [
+        {
+          "code": "MOV R0, #42",
+          "description": "Load constant 42 into R0"
+        },
+        {
+          "code": "ADD R1, #10",
+          "description": "Add constant 10 to R1"
+        }
+      ],
+      "notes": "Fastest addressing mode. Use # prefix for immediate values.",
+      "diagram": "Instruction → #Value → Register"
+    },
+    {
+      "id": "register",
+      "name": "Register Addressing",
+      "syntax": "register",
+      "description": "The operand is the contents of a register",
+      "examples": [
+        {
+          "code": "MOV R0, R1",
+          "description": "Copy R1 contents to R0"
+        },
+        {
+          "code": "ADD R2, R3",
+          "description": "Add R3 to R2"
+        }
+      ],
+      "notes": "Second fastest mode. Direct register-to-register operations.",
+      "diagram": "Register → Value → Operation"
+    },
+    {
+      "id": "direct",
+      "name": "Direct Memory Addressing",
+      "syntax": "[address]",
+      "description": "The operand is at a specific memory address",
+      "examples": [
+        {
+          "code": "LOAD R0, [1000]",
+          "description": "Load from memory address 1000"
+        },
+        {
+          "code": "STORE [value], R1",
+          "description": "Store R1 to label 'value'"
+        }
+      ],
+      "notes": "Address can be numeric or a label. Use square brackets.",
+      "diagram": "Instruction → [Address] → Memory → Value"
+    },
+    {
+      "id": "indirect",
+      "name": "Register Indirect Addressing",
+      "syntax": "[register]",
+      "description": "The register contains the memory address of the operand",
+      "examples": [
+        {
+          "code": "LOAD R0, [R1]",
+          "description": "Load from address stored in R1"
+        },
+        {
+          "code": "STORE [R2], R3",
+          "description": "Store R3 to address in R2"
+        }
+      ],
+      "notes": "Register acts as a pointer. Useful for dynamic addressing.",
+      "diagram": "Register → Address → Memory → Value"
+    },
+    {
+      "id": "indexed",
+      "name": "Indexed Addressing",
+      "syntax": "[base + offset]",
+      "description": "Effective address is base address plus offset",
+      "examples": [
+        {
+          "code": "LOAD R0, [array+4]",
+          "description": "Load second element (offset 4)"
+        },
+        {
+          "code": "LOAD R1, [R2+8]",
+          "description": "Load from R2 address plus 8"
+        }
+      ],
+      "notes": "Perfect for array access. Offset can be constant or register.",
+      "diagram": "Base + Offset → Effective Address → Memory → Value"
+    }
+  ],
+  "directives": [
+    {
+      "id": "data",
+      "name": ".DATA",
+      "description": "Marks the beginning of the data section",
+      "syntax": ".DATA",
+      "examples": [
+        {
+          "code": ".DATA\nvalue: .WORD 42\narray: .WORD 1, 2, 3",
+          "description": "Define data section with variables"
+        }
+      ],
+      "notes": "All variable declarations must be in the data section."
+    },
+    {
+      "id": "text",
+      "name": ".TEXT",
+      "description": "Marks the beginning of the code section",
+      "syntax": ".TEXT",
+      "examples": [
+        {
+          "code": ".TEXT\nMOV R0, #42\nHALT",
+          "description": "Define code section with instructions"
+        }
+      ],
+      "notes": "All executable instructions must be in the text section."
+    },
+    {
+      "id": "word",
+      "name": ".WORD",
+      "description": "Define 32-bit integer data",
+      "syntax": "label: .WORD value [, value...]",
+      "examples": [
+        {
+          "code": "count: .WORD 10",
+          "description": "Single 32-bit integer"
+        },
+        {
+          "code": "array: .WORD 1, 2, 3, 4",
+          "description": "Array of integers"
+        }
+      ],
+      "notes": "Each WORD occupies 4 bytes in memory."
+    },
+    {
+      "id": "byte",
+      "name": ".BYTE",
+      "description": "Define 8-bit byte data",
+      "syntax": "label: .BYTE value [, value...]",
+      "examples": [
+        {
+          "code": "char: .BYTE 65",
+          "description": "Single byte (ASCII 'A')"
+        },
+        {
+          "code": "bytes: .BYTE 1, 2, 3",
+          "description": "Array of bytes"
+        }
+      ],
+      "notes": "Each BYTE occupies 1 byte in memory."
+    },
+    {
+      "id": "string",
+      "name": ".STRING",
+      "description": "Define null-terminated string",
+      "syntax": "label: .STRING \"text\"",
+      "examples": [
+        {
+          "code": "msg: .STRING \"Hello\"",
+          "description": "String with automatic null terminator"
+        },
+        {
+          "code": "name: .STRING \"World!\"",
+          "description": "Another string example"
+        }
+      ],
+      "notes": "Automatically adds null terminator (0) at the end."
+    },
+    {
+      "id": "space",
+      "name": ".SPACE",
+      "description": "Reserve uninitialized memory space",
+      "syntax": "label: .SPACE size",
+      "examples": [
+        {
+          "code": "buffer: .SPACE 100",
+          "description": "Reserve 100 bytes for buffer"
+        },
+        {
+          "code": "temp: .SPACE 16",
+          "description": "Reserve 16 bytes for temporary data"
+        }
+      ],
+      "notes": "Reserves memory without initializing values. Size in bytes."
+    }
+  ],
+  "registers": [
+    {
+      "name": "R0-R7",
+      "description": "General-purpose registers for data storage and computation",
+      "usage": "Can hold 32-bit signed integers, memory addresses, or temporary values",
+      "notes": "R0 often used for function return values and system call parameters"
+    },
+    {
+      "name": "SP",
+      "description": "Stack Pointer - points to the top of the stack",
+      "usage": "Automatically managed by PUSH/POP and CALL/RET instructions",
+      "notes": "Stack grows downward (SP decreases when pushing)"
+    },
+    {
+      "name": "BP",
+      "description": "Base Pointer - used for stack frame management",
+      "usage": "Points to the base of current function's stack frame",
+      "notes": "Manually managed for accessing function parameters and local variables"
+    },
+    {
+      "name": "IP",
+      "description": "Instruction Pointer - points to the next instruction to execute",
+      "usage": "Automatically updated by CPU, modified by jumps and calls",
+      "notes": "Read-only from program perspective, changed by control flow instructions"
+    }
+  ],
+  "flags": [
+    {
+      "name": "ZF",
+      "description": "Zero Flag - set when operation result is zero",
+      "usage": "Used by conditional jumps like JZ/JE and JNZ/JNE",
+      "examples": ["CMP R0, R1 sets ZF if R0 equals R1", "SUB R0, R0 always sets ZF"]
+    },
+    {
+      "name": "NF",
+      "description": "Negative Flag - set when operation result is negative",
+      "usage": "Used by signed conditional jumps",
+      "examples": ["SUB R0, #1 sets NF if R0 was 0", "Used with JL/JG for signed comparisons"]
+    },
+    {
+      "name": "CF",
+      "description": "Carry Flag - set on unsigned overflow/underflow",
+      "usage": "Indicates carry out of most significant bit",
+      "examples": ["ADD with overflow sets CF", "Used with JB/JA for unsigned comparisons"]
+    },
+    {
+      "name": "OF",
+      "description": "Overflow Flag - set on signed overflow",
+      "usage": "Indicates signed arithmetic overflow",
+      "examples": ["Adding two large positive numbers", "Subtracting large negative from positive"]
+    }
+  ]
+}

@@ -1,0 +1,284 @@
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/600.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Variables for theming */
+:root {
+  --bg: #0b0f18;
+  --panel: #0f1626cc;
+  --edge: #1a2240;
+  --accent: #6ef3ff;
+  --accent2: #a78bfa;
+  --ok: #22c55e;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: #e2e8f0;
+  overflow-x: hidden;
+}
+
+/* Animated background */
+.cyber-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(110, 243, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(167, 139, 250, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+}
+
+.cyber-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(110, 243, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(110, 243, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: grid-move 20s linear infinite;
+}
+
+.cyber-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cyber-bg::before {
+    animation: none;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent), var(--accent2));
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f1626;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) #0f1626;
+}
+
+/* Monaco editor container */
+.monaco-editor-container {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Assembly syntax highlighting for fallback editor */
+.asm-keyword {
+  color: #d73a49;
+  font-weight: bold;
+}
+
+.asm-register {
+  color: #22863a;
+}
+
+.asm-number {
+  color: #032f62;
+}
+
+.asm-comment {
+  color: #6a737d;
+  font-style: italic;
+}
+
+.asm-label {
+  color: #e36209;
+  font-weight: bold;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .debug-panels {
+    flex-direction: column;
+  }
+  
+  .memory-view {
+    max-height: 200px;
+  }
+  
+  .console-output {
+    max-height: 150px;
+  }
+}
+
+/* Animation utilities */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Watch expression flash animation */
+.watch-changed {
+  animation: watchFlash 0.6s ease-out;
+}
+
+@keyframes watchFlash {
+  0% {
+    background-color: #fef3c7;
+    transform: scale(1.02);
+  }
+  50% {
+    background-color: #fde68a;
+  }
+  100% {
+    background-color: transparent;
+    transform: scale(1);
+  }
+}
+
+/* Breakpoint pulse animation */
+.breakpoint-active {
+  animation: breakpointPulse 2s infinite;
+}
+
+@keyframes breakpointPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* Current line highlight */
+.current-line {
+  animation: currentLineGlow 1s ease-in-out infinite alternate;
+}
+
+@keyframes currentLineGlow {
+  from {
+    background-color: rgba(251, 191, 36, 0.3);
+  }
+  to {
+    background-color: rgba(251, 191, 36, 0.6);
+  }
+}
+
+/* Trace entry hover effect */
+.trace-entry:hover {
+  transform: translateX(4px);
+  transition: transform 0.2s ease-out;
+}
+
+/* Focus styles for accessibility */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* ScrollChrome class for polished scrollable areas */
+.scroll-chrome {
+  @apply rounded-lg shadow-[inset_0_0_0_1px_rgba(110,243,255,.15)];
+  @apply overflow-y-auto overscroll-contain;
+  min-height: 0;
+  height: 100%;
+  flex: 1;
+}
+
+/* Ensure scrolling works in all contexts */
+.scroll-chrome {
+  display: flex;
+  flex-direction: column;
+}
+
+.scroll-chrome > * {
+  flex-shrink: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .bg-gray-50 {
+    background-color: white;
+  }
+  
+  .text-gray-600 {
+    color: black;
+  }
+  
+  .border-gray-300 {
+    border-color: black;
+  }
+}
