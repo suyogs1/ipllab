@@ -2,40 +2,61 @@
  * Enhanced Assembly Debugger with line awareness and resizable UI
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  Play, 
-  Pause, 
-  Square, 
-  StepForward, 
-  SkipForward, 
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { motion } from "framer-motion";
+import {
+  Play,
+  Pause,
+  Square,
+  StepForward,
+  SkipForward,
   RotateCcw,
   Bug,
   Eye,
   Terminal,
   HardDrive,
   Activity,
-  Settings
-} from 'lucide-react';
-import { NeonButton } from './ui/NeonButton';
-import { GlassCard } from './ui/GlassCard';
-import { PanelHeader } from './ui/PanelHeader';
-import { TagPill } from './ui/TagPill';
-import { GlowTabs } from './ui/GlowTabs';
-import { MemoryViewer } from './MemoryViewer';
-import { WatchesPanel } from './WatchesPanel';
-import { TracePanel } from './TracePanel';
-import { PerformanceControls } from './PerformanceControls';
-import { DebuggerLayout } from './DebuggerLayout';
-import ErrorBoundary from './ErrorBoundary';
-import { useDebuggerBus } from '../state/debuggerBus';
-import { createRAM, RAM_SIZE } from '../utils/memory';
-import { assemble, createCPU, resetCPU, step, run, type CPU, type Program, AsmError } from '../runners/asmEngine';
-import { findExecutableLines, snapToExecutableLine, toOneBased, toZeroBased } from '../utils/positions';
-import { createIdentityAdapter, type SourceMapAdapter } from '../utils/sourceMap';
-import { debuggerLog } from '../utils/log';
-import { validateBreakpoint, validateStepEvent, type Breakpoint } from '../utils/validation';
+  Settings,
+} from "lucide-react";
+import { NeonButton } from "./ui/NeonButton";
+import { GlassCard } from "./ui/GlassCard";
+import { PanelHeader } from "./ui/PanelHeader";
+import { TagPill } from "./ui/TagPill";
+import { GlowTabs } from "./ui/GlowTabs";
+import { MemoryViewer } from "./MemoryViewer";
+import { WatchesPanel } from "./WatchesPanel";
+import { TracePanel } from "./TracePanel";
+import { PerformanceControls } from "./PerformanceControls";
+import { DebuggerLayout } from "./DebuggerLayout";
+import ErrorBoundary from "./ErrorBoundary";
+import { useDebuggerBus } from "../state/debuggerBus";
+import { createRAM, RAM_SIZE } from "../utils/memory";
+import {
+  assemble,
+  createCPU,
+  resetCPU,
+  step,
+  run,
+  type CPU,
+  type Program,
+  AsmError,
+} from "../runners/asmEngine";
+import {
+  findExecutableLines,
+  snapToExecutableLine,
+  toOneBased,
+  toZeroBased,
+} from "../utils/positions";
+import {
+  createIdentityAdapter,
+  type SourceMapAdapter,
+} from "../utils/sourceMap";
+import { debuggerLog } from "../utils/log";
+import {
+  validateBreakpoint,
+  validateStepEvent,
+  type Breakpoint,
+} from "../utils/validation";
 
 interface DebuggerState {
   cpu: CPU;
@@ -61,16 +82,17 @@ interface DebuggerState {
 interface AsmDebuggerProps {
   initialCode?: string;
   readonly?: boolean;
-  theme?: 'light' | 'dark' | 'system';
+  theme?: "light" | "dark" | "system";
 }
 
 const AsmDebugger: React.FC<AsmDebuggerProps> = ({
-  initialCode = '',
+  initialCode = "",
   readonly = false,
-  theme = 'dark'
+  theme = "dark",
 }) => {
-  const { pendingLoad, consumed, markConsumed, reset: resetBus } = useDebuggerBus();
-  const [code, setCode] = useState(initialCode);
+  const { pendingLoad, consumed, markConsumed, reset: resetBus } =
+    useDebuggerBus();
+  const [code, setCode] = useState(initialCode ?? "");
   const [debuggerState, setDebuggerState] = useState<DebuggerState>(() => ({
     cpu: createCPU(),
     ram: createRAM(),
@@ -82,10 +104,10 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
     running: false,
     currentLine: null,
     consoleOutput: [],
-    error: null
+    error: null,
   }));
-  
-  const [activePanel, setActivePanel] = useState('registers');
+
+  const [activePanel, setActivePanel] = useState("registers");
   const [speed, setSpeed] = useState(1);
   const [batchSize, setBatchSize] = useState(100);
   const editorRef = useRef<any>(null);
