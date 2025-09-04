@@ -1,13 +1,14 @@
+
 /**
- * Enhanced Assembly Debugger with line awareness and resizable UI
+ * Enhanced Assembly Debugger with line awareness, resizable UI, Monaco fixes,
+ * gutter breakpoints, auto-scroll to current line, assembly syntax highlighting,
+ * and local persistence.
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion } from 'framer-motion';
 import { 
   Play, 
   Pause, 
-  Square, 
   StepForward, 
   SkipForward, 
   RotateCcw,
@@ -31,7 +32,7 @@ import { DebuggerLayout } from './DebuggerLayout';
 import ErrorBoundary from './ErrorBoundary';
 import { useDebuggerBus } from '../state/debuggerBus';
 import { createRAM, RAM_SIZE } from '../utils/memory';
-import { assemble, createCPU, resetCPU, step, run, type CPU, type Program, AsmError } from '../runners/asmEngine';
+import { assemble, createCPU, step, run, type CPU, type Program, AsmError } from '../runners/asmEngine';
 import { findExecutableLines, snapToExecutableLine } from '../utils/positions';
 import { createIdentityAdapter, type SourceMapAdapter } from '../utils/sourceMap';
 import { debuggerLog } from '../utils/log';
@@ -89,9 +90,24 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
   const [speed, setSpeed] = useState(1);
   const [batchSize, setBatchSize] = useState(100);
   const editorRef = useRef<any>(null);
-  const monacoRef = useRef<any>(null);
+  const monacoGlobalRef = useRef<any>(null);
 
-  // Load pending code from debugger bus
+  // ---------- Persistence: load/save editor buffer ----------
+  useEffect(() => {
+    if (!pendingLoad && !consumed) {
+      const cached = localStorage.getItem('ipl.debugger.source');
+      if (cached && !code) setCode(cached);
+    }
+  }, [pendingLoad, consumed]); // run once early
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      localStorage.setItem('ipl.debugger.source', code ?? '');
+    }, 200);
+    return () => clearTimeout(t);
+  }, [code]);
+
+  // ---------- Load pending code from debugger bus ----------
   useEffect(() => {
     if (pendingLoad && !consumed) {
       debuggerLog.debug('Loading pending code from bus', pendingLoad);
@@ -136,7 +152,7 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
     }
   }, [pendingLoad, consumed, markConsumed]);
 
-  // Assemble code when it changes
+  // ---------- Assemble code when it changes ----------
   useEffect(() => {
     if (!code || !code.trim()) {
       setDebuggerState(prev => ({ ...prev, program: null, executableLines: new Set(), error: null }));
@@ -177,50 +193,41 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
     }
   }, [code]);
 
-  // Handle Monaco editor setup
+  // ---------- Monaco editor setup ----------
   const handleEditorDidMount = useCallback((editor: any, monaco: any) => {
     editorRef.current = editor;
-    monacoRef.current = monaco;
+    monacoGlobalRef.current = monaco;
+
+    // Toggle breakpoints by clicking the glyph margin
     editor.onMouseDown((e: any) => {
-  const t = e.target;
-  if (!t) return;
-  const isGlyph = t.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN;
-  const line = t.position?.lineNumber;
-  if (isGlyph && line) {
-    toggleBreakpoint(line);
-    e.event.preventDefault?.();
-  }
-});
-    
-    // Keyboard shortcuts (use KeyCode; KeyMod only for modifiers)
-    editor.addCommand(monaco.KeyCode.F9, () => {
-      const position = editor.getPosition();
-      if (position) {
-        toggleBreakpoint(position.lineNumber);
+      const t = e.target;
+      if (!t) return;
+      const isGlyph = t.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN;
+      const line = t.position?.lineNumber;
+      if (isGlyph && line) {
+        toggleBreakpoint(line);
+        e.event?.preventDefault?.();
       }
     });
-    
-    editor.addCommand(monaco.KeyCode.F10, () => {
-      handleStep('over');
+
+    // Keyboard shortcuts
+    editor.addCommand(monaco.KeyCode.F9, () => {
+      const position = editor.getPosition();
+      if (position) toggleBreakpoint(position.lineNumber);
     });
+    editor.addCommand(monaco.KeyCode.F10, () => handleStep('over'));
+    editor.addCommand(monaco.KeyCode.F11, () => handleStep('into'));
+    editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.F11, () => handleStep('out'));
     
-    editor.addCommand(monaco.KeyCode.F11, () => {
-      handleStep('into');
-    });
-    
-    editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.F11, () => {
-      handleStep('out');
-    });
-    
-    // Update breakpoint decorations
+    // Initial decorations
     updateBreakpointDecorations();
     
     debuggerLog.debug('Monaco editor mounted with shortcuts');
-  }, []); // editor handles internal state; no external deps
+  }, []);
 
   const updateBreakpointDecorations = useCallback(() => {
-    if (!editorRef.current || !monacoRef.current) return;
-    const monaco = monacoRef.current;
+    if (!editorRef.current || !monacoGlobalRef.current) return;
+    const monaco = monacoGlobalRef.current;
 
     const decorations: any[] = Array.from(debuggerState.breakpoints.entries()).map(([line, bp]) => ({
       range: new monaco.Range(line, 1, line, 1),
@@ -232,7 +239,6 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
       }
     }));
     
-    // Add current execution line
     if (debuggerState.currentLine) {
       decorations.push({
         range: new monaco.Range(debuggerState.currentLine, 1, debuggerState.currentLine, 1),
@@ -253,37 +259,27 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
 
   const toggleBreakpoint = useCallback((line: number) => {
     const { line: snappedLine, snapped } = snapToExecutableLine(line, debuggerState.executableLines);
-    
     if (snapped) {
       debuggerLog.info(`Breakpoint moved to line ${snappedLine} (nearest executable)`);
     }
-    
     setDebuggerState(prev => {
       const newBreakpoints = new Map(prev.breakpoints);
-      
-      if (newBreakpoints.has(snappedLine)) {
-        newBreakpoints.delete(snappedLine);
-      } else {
-        newBreakpoints.set(snappedLine, { line: snappedLine, enabled: true });
-      }
-      
+      if (newBreakpoints.has(snappedLine)) newBreakpoints.delete(snappedLine);
+      else newBreakpoints.set(snappedLine, { line: snappedLine, enabled: true });
       return { ...prev, breakpoints: newBreakpoints };
     });
   }, [debuggerState.executableLines]);
 
   const handleReset = useCallback(() => {
     debuggerLog.debug('Resetting debugger state');
-    
     setDebuggerState(prev => {
       const newCpu = createCPU();
       const newRam = createRAM();
-      
       if (prev.program) {
         for (let i = 0; i < prev.program.dataSection.length; i++) {
           newRam.setUint8(i, prev.program.dataSection[i]);
         }
       }
-      
       return {
         ...prev,
         cpu: newCpu,
@@ -303,23 +299,17 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
     labels: Record<string, number>
   ): number | string => {
     const trimmed = expr.trim().toUpperCase();
-    
-    // Register values
     if (trimmed.match(/^R[0-7]$/)) {
       const regNum = parseInt(trimmed[1]);
       return cpu.R[regNum];
     }
-    
     if (trimmed === 'SP') return cpu.SP;
     if (trimmed === 'BP') return cpu.BP;
     if (trimmed === 'IP') return cpu.IP;
-    
-    // Memory values [addr]
     const memMatch = trimmed.match(/^\[(.+)\]$/);
     if (memMatch) {
       const addrExpr = memMatch[1];
       let addr: number;
-      
       if (Object.prototype.hasOwnProperty.call(labels, addrExpr.toLowerCase())) {
         addr = labels[addrExpr.toLowerCase()];
       } else if (/^[A-Z_][A-Z0-9_]*\+\d+$/.test(addrExpr)) {
@@ -329,30 +319,24 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
         addr = parseInt(addrExpr, 16);
         if (Number.isNaN(addr)) addr = parseInt(addrExpr, 10);
       }
-      
       if (Number.isFinite(addr) && addr >= 0 && addr < RAM_SIZE - 3) {
         return ram.getInt32(addr, true);
       }
     }
-    
     throw new Error(`Invalid expression: ${expr}`);
   };
 
   const handleStep = useCallback((type: 'into' | 'over' | 'out') => {
     if (!debuggerState.program || debuggerState.running) return;
-    
     try {
       const stepEvent = validateStepEvent({ type, count: 1 });
       debuggerLog.debug('Stepping', stepEvent);
-      
       setDebuggerState(prev => {
         const newState = { ...prev };
-        
         if (newState.cpu.halted) {
           debuggerLog.warn('Cannot step: CPU halted');
           return prev;
         }
-        
         try {
           step(newState.cpu, newState.program!, newState.ram, {
             onSys: (syscall: number) => {
@@ -384,7 +368,6 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
               }
             }
           });
-          
           // Update current line based on IP
           if (newState.program && newState.cpu.IP < newState.program.ast.length) {
             const instruction = newState.program.ast[newState.cpu.IP];
@@ -392,18 +375,17 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
           } else {
             newState.currentLine = null;
           }
-          
+          // Auto-reveal current line
+          if (editorRef.current && newState.currentLine) {
+            editorRef.current.revealLineInCenterIfOutsideViewport(newState.currentLine);
+          }
           // Update watches
           newState.watches = newState.watches.map(watch => {
             try {
               const newValue = evaluateWatchExpression(
-                watch.expression, 
-                newState.cpu, 
-                newState.ram, 
-                newState.program?.labels || {}
+                watch.expression, newState.cpu, newState.ram, newState.program?.labels || {}
               );
               const changed = newValue !== watch.value;
-              
               return {
                 ...watch,
                 value: newValue,
@@ -412,27 +394,16 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
                 error: undefined
               };
             } catch (error) {
-              return {
-                ...watch,
-                error: error instanceof Error ? error.message : 'Evaluation error',
-                changed: false
-              };
+              return { ...watch, error: error instanceof Error ? error.message : 'Evaluation error', changed: false };
             }
           });
-          
         } catch (error) {
-          newState.error = error instanceof AsmError 
-            ? `Line ${error.line}: ${error.message}`
-            : error instanceof Error 
-            ? error.message 
-            : 'Execution error';
-          
+          newState.error = error instanceof AsmError ? `Line ${error.line}: ${error.message}`
+            : error instanceof Error ? error.message : 'Execution error';
           debuggerLog.error('Step execution failed:', error);
         }
-        
         return newState;
       });
-      
     } catch (error) {
       debuggerLog.error('Step validation failed:', error);
     }
@@ -440,14 +411,11 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
 
   const handleRun = useCallback(() => {
     if (!debuggerState.program || debuggerState.running) return;
-    
     debuggerLog.debug('Starting execution');
     setDebuggerState(prev => ({ ...prev, running: true }));
-    
     setTimeout(() => {
       setDebuggerState(prev => {
         const newState = { ...prev };
-        
         try {
           const result = run(newState.cpu, newState.program!, newState.ram, {
             maxSteps: 10000,
@@ -481,51 +449,33 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
               }
             }
           });
-          
           debuggerLog.debug('Execution completed', result);
-          
           if (newState.program && newState.cpu.IP < newState.program.ast.length) {
             const instruction = newState.program.ast[newState.cpu.IP];
             newState.currentLine = instruction.line;
           } else {
             newState.currentLine = null;
           }
-          
+          if (editorRef.current && newState.currentLine) {
+            editorRef.current.revealLineInCenterIfOutsideViewport(newState.currentLine);
+          }
         } catch (error) {
-          newState.error = error instanceof AsmError 
-            ? `Line ${error.line}: ${error.message}`
-            : error instanceof Error 
-            ? error.message 
-            : 'Execution error';
-          
+          newState.error = error instanceof AsmError ? `Line ${error.line}: ${error.message}`
+            : error instanceof Error ? error.message : 'Execution error';
           debuggerLog.error('Execution failed:', error);
         }
-        
         return { ...newState, running: false };
       });
     }, 10);
   }, [debuggerState.program, debuggerState.running]);
 
   const addWatch = useCallback((expression: string) => {
-    const newWatch = {
-      id: `watch_${Date.now()}`,
-      expression,
-      value: 0,
-      history: [],
-      changed: false
-    };
-    
-    setDebuggerState(prev => ({
-      ...prev,
-      watches: [...prev.watches, newWatch]
-    }));
+    const newWatch = { id: `watch_${Date.now()}`, expression, value: 0, history: [], changed: false };
+    setDebuggerState(prev => ({ ...prev, watches: [...prev.watches, newWatch] }));
   }, []);
 
   const removeWatch = useCallback((id: string) => {
-    setDebuggerState(prev => ({
-      ...prev,
-      watches: prev.watches.filter(w => w.id !== id)
-    }));
+    setDebuggerState(prev => ({ ...prev, watches: prev.watches.filter(w => w.id !== id) }));
   }, []);
 
   const copyValue = useCallback((value: number | string) => {
@@ -551,11 +501,7 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
             <TagPill variant={debuggerState.cpu.halted ? 'danger' : 'success'}>
               {debuggerState.cpu.halted ? 'Halted' : 'Ready'}
             </TagPill>
-            {debuggerState.running && (
-              <TagPill variant="warning">
-                Running
-              </TagPill>
-            )}
+            {debuggerState.running && <TagPill variant="warning">Running</TagPill>}
           </div>
         }
       />
@@ -603,6 +549,30 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
               >
                 <RotateCcw className="w-4 h-4" />
                 Reset
+              </NeonButton>
+
+              {/* Optional: quick example loader */}
+              <NeonButton
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  setCode(
+`START:
+  MOV R0, 5
+  MOV R1, 1
+LOOP:
+  MUL R1, R0
+  DEC R0
+  JNE LOOP
+  ; print R1
+  MOV R0, R1
+  SYSCALL 1
+  HLT`
+                  )
+                }
+                title="Load example program"
+              >
+                Load Example
               </NeonButton>
             </div>
             
@@ -772,13 +742,13 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
           }}
         >
           {renderEditor()}
-        </DebuggerLayout>
+      </DebuggerLayout>
       </ErrorBoundary>
     </div>
   );
 };
 
-// Monaco Editor wrapper component (fixed)
+// ---------------- Monaco Editor wrapper (fixed & enhanced) ----------------
 const MonacoEditor: React.FC<{
   value?: string;
   onChange: (value: string) => void;
@@ -805,6 +775,24 @@ const MonacoEditor: React.FC<{
 
   useEffect(() => {
     if (!monaco || !containerRef.current || editorRef.current) return;
+
+    // Register a very small 'assembly' language if missing
+    const langs = monaco.languages.getLanguages().map((l: any) => l.id);
+    if (language === 'assembly' && !langs.includes('assembly')) {
+      monaco.languages.register({ id: 'assembly' });
+      monaco.languages.setMonarchTokensProvider('assembly', {
+        tokenizer: {
+          root: [
+            [/;.*$/, 'comment'],
+            [/\b(MOV|ADD|SUB|MUL|DIV|JMP|JE|JNE|CALL|RET|PUSH|POP|CMP|INC|DEC|NOP|HLT|SYSCALL)\b/i, 'keyword'],
+            [/\bR[0-7]\b|SP|BP|IP/, 'variable.predefined'],
+            [/\b0x[0-9A-Fa-f]+\b|\b\d+\b/, 'number'],
+            [/".*?"/, 'string'],
+            [/^\s*[A-Za-z_][\w]*\s*:/, 'type.identifier'], // label at line start
+          ],
+        },
+      });
+    }
 
     const resolvedTheme =
       theme === 'dark' ? 'vs-dark' :
