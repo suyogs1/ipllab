@@ -1,10 +1,14 @@
 import React, { Component, ReactNode } from 'react';
 import { Copy, RotateCcw } from 'lucide-react';
 import { NeonButton } from './ui/NeonButton';
+import { Copy, RotateCcw } from 'lucide-react';
+import { NeonButton } from './ui/NeonButton';
 
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  onReset?: () => void;
+  compact?: boolean;
   onReset?: () => void;
   compact?: boolean;
 }
@@ -34,9 +38,14 @@ class ErrorBoundary extends Component<Props, State> {
 
   handleReset = () => {
     this.props.onReset?.();
+    this.props.onReset?.();
     this.setState({ hasError: false, error: undefined, errorInfo: undefined });
   };
 
+  handleCopyStack = () => {
+    const stackTrace = this.state.error?.stack || 'No stack trace available';
+    navigator.clipboard.writeText(stackTrace);
+  };
   handleCopyStack = () => {
     const stackTrace = this.state.error?.stack || 'No stack trace available';
     navigator.clipboard.writeText(stackTrace);
@@ -47,6 +56,39 @@ class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
+      // Compact error card for debugger
+      if (this.props.compact) {
+        return (
+          <div className="p-4 bg-danger/20 border border-danger/50 rounded-xl">
+            <div className="flex items-start justify-between mb-3">
+              <div>
+                <h3 className="text-danger font-medium">Debugger Error</h3>
+                <p className="text-sm text-slate-400 mt-1">
+                  {this.state.error?.message || 'Unknown error occurred'}
+                </p>
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <NeonButton
+                variant="danger"
+                size="sm"
+                onClick={this.handleReset}
+              >
+                <RotateCcw className="w-3 h-3 mr-1" />
+                Reset
+              </NeonButton>
+              <NeonButton
+                variant="ghost"
+                size="sm"
+                onClick={this.handleCopyStack}
+              >
+                <Copy className="w-3 h-3 mr-1" />
+                Copy Stack
+              </NeonButton>
+            </div>
+          </div>
+        );
+      }
       // Compact error card for debugger
       if (this.props.compact) {
         return (
@@ -112,9 +154,10 @@ class ErrorBoundary extends Component<Props, State> {
             <div className="flex justify-center space-x-4">
               <NeonButton
                 variant="primary"
+                variant="primary"
                 onClick={this.handleReset}
-              >
                 Try Again
+              </NeonButton>
               </NeonButton>
               <NeonButton
                 variant="secondary"
@@ -125,11 +168,17 @@ class ErrorBoundary extends Component<Props, State> {
               </NeonButton>
               <NeonButton
                 variant="ghost"
-                onClick={() => window.location.reload()}
+                onClick={this.handleCopyStack}
               >
+                <Copy className="w-4 h-4 mr-2" />
+                Copy Stack
+              </NeonButton>
+              <NeonButton
+                variant="ghost"
+                onClick={() => window.location.reload()}
                 Reload Page
               </NeonButton>
-            </div>
+              </NeonButton>
 
             <div className="mt-6 text-center text-sm text-gray-500">
               <p>If this problem persists, try refreshing the page or clearing your browser cache.</p>

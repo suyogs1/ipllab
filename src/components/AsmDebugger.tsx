@@ -18,7 +18,6 @@ import {
   Activity,
   Settings
 } from 'lucide-react';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { NeonButton } from './ui/NeonButton';
 import { GlassCard } from './ui/GlassCard';
 import { PanelHeader } from './ui/PanelHeader';
@@ -465,6 +464,9 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
     }));
   }, []);
 
+  const copyValue = useCallback((value: number | string) => {
+    navigator.clipboard.writeText(String(value));
+  }, []);
   const evaluateWatchExpression = (
     expr: string, 
     cpu: CPU, 
@@ -696,7 +698,7 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
             onAddWatch={addWatch}
             onRemoveWatch={removeWatch}
             onToggleWatchpoint={() => {}}
-            onCopyValue={(value) => navigator.clipboard.writeText(String(value))}
+            onCopyValue={copyValue}
           />
         )}
         

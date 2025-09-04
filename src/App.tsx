@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AppShell } from './components/AppShell';
 import AsmDebugger from './components/AsmDebugger';
 import Learn from './tabs/Learn';
 import { Docs } from './tabs/Docs';
+import DebuggerStandalone from './routes/DebuggerStandalone';
 import { ToastContainer } from './components/ui/Toast';
 import { DebuggerBusProvider } from './state/debuggerBus.tsx';
 
@@ -17,6 +19,19 @@ interface Toast {
 type TabType = 'learn' | 'debug' | 'docs';
 
 function App() {
+  // Check if we're in standalone debugger route
+  const isStandaloneRoute = window.location.pathname === '/debugger';
+  
+  if (isStandaloneRoute) {
+    return (
+      <ErrorBoundary>
+        <div className="h-full bg-bg text-slate-200">
+          <DebuggerStandalone />
+        </div>
+      </ErrorBoundary>
+    );
+  }
+
   const [activeTab, setActiveTab] = useState<TabType>('learn');
   const [toasts, setToasts] = useState<Toast[]>([]);
 
@@ -95,15 +110,23 @@ function App() {
   return (
     <ErrorBoundary>
       <DebuggerBusProvider>
-        <AppShell
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          onCommandAction={handleCommandAction}
-        >
-          {renderTabContent()}
-        </AppShell>
-        
-        <ToastContainer toasts={toasts} onClose={removeToast} />
+        <Router>
+          <Routes>
+            <Route path="/debugger" element={<DebuggerStandalone />} />
+            <Route path="*" element={
+              <>
+                <AppShell
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                  onCommandAction={handleCommandAction}
+                >
+                  {renderTabContent()}
+                </AppShell>
+                <ToastContainer toasts={toasts} onClose={removeToast} />
+              </>
+            } />
+          </Routes>
+        </Router>
       </DebuggerBusProvider>
     </ErrorBoundary>
   );

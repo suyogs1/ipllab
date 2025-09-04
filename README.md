@@ -114,6 +114,50 @@ npm install
 npm run dev
 ```
 
+### Standalone Debugger
+
+The debugger can be used independently of the learning platform:
+
+```bash
+# Run standalone debugger
+npm run dev:debugger
+
+# Test debugger functionality  
+npm run test:debugger
+
+# Run smoke tests
+npm run smoke:debugger
+```
+
+#### Embedding the Debugger
+
+```tsx
+import { DebuggerStandalone } from '@ipl/debugger';
+
+<DebuggerStandalone 
+  initialFile="examples/hello.asm"
+  theme="system"
+  readonly={false}
+  initialBreakpoints={[{ path: 'main.asm', line: 5 }]}
+/>
+```
+
+**Props:**
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `initialFile` | `string` | - | Load example file on mount |
+| `readonly` | `boolean` | `false` | Disable code editing |
+| `theme` | `'light'\|'dark'\|'system'` | `'dark'` | Editor theme |
+| `initialBreakpoints` | `Array<{path:string; line:number}>` | `[]` | Set breakpoints on load |
+
+#### Features
+
+- **Line Awareness**: Breakpoints snap to executable lines automatically
+- **Resizable Layout**: Dock right, bottom, or fullscreen with persistent preferences
+- **Keyboard Shortcuts**: F9 (breakpoint), F10 (step over), F11 (step into)
+- **Error Recovery**: Robust error boundaries with reset functionality
+- **Source Mapping**: Accurate line mapping between editor and runtime
+
 ### Build
 ```bash
 npm run build
