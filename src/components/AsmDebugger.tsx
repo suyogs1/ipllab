@@ -593,7 +593,7 @@ LOOP:
         </div>
         
         {/* Monaco Editor */}
-        <div <div className="flex-1 min-h-[300px]" data-testid="code-editor" style={{ height: '65vh' }}>
+        <div className="flex-1 min-h-[300px]" data-testid="code-editor" style={{ height: '65vh' }}>
           <MonacoEditor
             value={code}
             onChange={setCode}
