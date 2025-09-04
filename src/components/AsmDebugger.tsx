@@ -181,6 +181,16 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
   const handleEditorDidMount = useCallback((editor: any, monaco: any) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
+    editor.onMouseDown((e: any) => {
+  const t = e.target;
+  if (!t) return;
+  const isGlyph = t.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN;
+  const line = t.position?.lineNumber;
+  if (isGlyph && line) {
+    toggleBreakpoint(line);
+    e.event.preventDefault?.();
+  }
+});
     
     // Keyboard shortcuts (use KeyCode; KeyMod only for modifiers)
     editor.addCommand(monaco.KeyCode.F9, () => {
