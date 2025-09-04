@@ -1,8 +1,10 @@
-
 /**
- * Enhanced Assembly Debugger with line awareness, resizable UI, Monaco fixes,
- * gutter breakpoints, auto-scroll to current line, assembly syntax highlighting,
- * and local persistence.
+ * Enhanced Assembly Debugger with reliable Monaco height:
+ * - Forces a concrete viewport height for the editor container
+ * - Adds ResizeObserver + window resize relayouts
+ * - Gutter breakpoints, auto-scroll to current line
+ * - Lightweight assembly syntax highlighting
+ * - Buffer persistence + example loader
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -221,6 +223,9 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
     
     // Initial decorations
     updateBreakpointDecorations();
+
+    // Force a layout after mount in case parent was 0-height at first
+    setTimeout(() => editor.layout(), 0);
     
     debuggerLog.debug('Monaco editor mounted with shortcuts');
   }, []);
@@ -398,8 +403,11 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
             }
           });
         } catch (error) {
-          newState.error = error instanceof AsmError ? `Line ${error.line}: ${error.message}`
-            : error instanceof Error ? error.message : 'Execution error';
+          newState.error = error instanceof AsmError 
+            ? `Line ${error.line}: ${error.message}`
+            : error instanceof Error 
+            ? error.message 
+            : 'Execution error';
           debuggerLog.error('Step execution failed:', error);
         }
         return newState;
@@ -460,8 +468,11 @@ const AsmDebugger: React.FC<AsmDebuggerProps> = ({
             editorRef.current.revealLineInCenterIfOutsideViewport(newState.currentLine);
           }
         } catch (error) {
-          newState.error = error instanceof AsmError ? `Line ${error.line}: ${error.message}`
-            : error instanceof Error ? error.message : 'Execution error';
+          newState.error = error instanceof AsmError 
+            ? `Line ${error.line}: ${error.message}`
+            : error instanceof Error 
+            ? error.message 
+            : 'Execution error';
           debuggerLog.error('Execution failed:', error);
         }
         return { ...newState, running: false };
@@ -593,7 +604,11 @@ LOOP:
         </div>
         
         {/* Monaco Editor */}
-        <div className="flex-1 min-h-300px" data-testid="code-editor" style={{ height: '65vh' }}>
+        <div
+          className="flex-1 min-h-[320px]"
+          data-testid="code-editor"
+          style={{ height: '65vh' }}   // Force a concrete height for Monaco to consume
+        >
           <MonacoEditor
             value={code}
             onChange={setCode}
@@ -727,7 +742,10 @@ LOOP:
   );
 
   return (
-    <div className="h-full" data-testid="debugger-container">
+    <div
+      className="h-[calc(100vh-140px)] min-h-[500px]"  /* ensure the whole debugger gets real height */
+      data-testid="debugger-container"
+    >
       <ErrorBoundary 
         compact 
         onReset={() => {
@@ -742,7 +760,7 @@ LOOP:
           }}
         >
           {renderEditor()}
-      </DebuggerLayout>
+        </DebuggerLayout>
       </ErrorBoundary>
     </div>
   );
@@ -756,7 +774,8 @@ const MonacoEditor: React.FC<{
   theme?: string;
   onMount: (editor: any, monaco: any) => void;
   options?: any;
-}> = ({ value = '', onChange, language = 'plaintext', theme = 'vs-dark', onMount, options = {} }) => {
+  height?: number | string;
+}> = ({ value = '', onChange, language = 'plaintext', theme = 'vs-dark', onMount, options = {}, height = '100%' }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<any>(null);
   const [monaco, setMonaco] = useState<any>(null);
@@ -773,10 +792,28 @@ const MonacoEditor: React.FC<{
     loadMonaco();
   }, []);
 
+  // Observe parent size to trigger layout when height changes from 0/5px → real
+  useEffect(() => {
+    const parent = containerRef.current?.parentElement || undefined;
+    if (!parent) return;
+    const ro = new ResizeObserver(() => {
+      if (editorRef.current) editorRef.current.layout();
+    });
+    ro.observe(parent);
+    window.addEventListener('resize', handleWindowResize);
+    function handleWindowResize() {
+      if (editorRef.current) editorRef.current.layout();
+    }
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', handleWindowResize);
+    };
+  }, []);
+
   useEffect(() => {
     if (!monaco || !containerRef.current || editorRef.current) return;
 
-    // Register a very small 'assembly' language if missing
+    // Register minimal 'assembly' language once
     const langs = monaco.languages.getLanguages().map((l: any) => l.id);
     if (language === 'assembly' && !langs.includes('assembly')) {
       monaco.languages.register({ id: 'assembly' });
@@ -788,7 +825,7 @@ const MonacoEditor: React.FC<{
             [/\bR[0-7]\b|SP|BP|IP/, 'variable.predefined'],
             [/\b0x[0-9A-Fa-f]+\b|\b\d+\b/, 'number'],
             [/".*?"/, 'string'],
-            [/^\s*[A-Za-z_][\w]*\s*:/, 'type.identifier'], // label at line start
+            [/^\s*[A-Za-z_][\w]*\s*:/, 'type.identifier'],
           ],
         },
       });
@@ -816,6 +853,9 @@ const MonacoEditor: React.FC<{
 
     onMount(editor, monaco);
 
+    // If we mounted while hidden or size was tiny, force a relayout next tick
+    setTimeout(() => editor.layout(), 0);
+
     return () => {
       editor.dispose();
       editorRef.current = null;
@@ -828,7 +868,13 @@ const MonacoEditor: React.FC<{
     }
   }, [value]);
 
-  return <div ref={containerRef} className="h-full" />;
+  return (
+    <div
+      ref={containerRef}
+      className="h-full"
+      style={{ height: typeof height === 'number' ? `${height}px` : height, minHeight: 320 }}
+    />
+  );
 };
 
 export default AsmDebugger;
